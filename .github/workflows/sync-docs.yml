@@ -7,6 +7,8 @@ on:
     paths:
       - 'docs/**/*.md'
       - 'docs/**/*.mdx'
+      - 'scripts/**/*.js'
+      - '.github/workflows/sync-docs.yml'
   schedule:
     - cron: '0 */6 * * *'
   workflow_dispatch:
@@ -24,7 +26,7 @@ jobs:
         with:
           node-version: 20
 
-      - name: Run sync script
+      - name: Build Maven dataset JSON
         run: node scripts/sync-docs.js
 
       - name: Upload dataset artifact
@@ -32,3 +34,9 @@ jobs:
         with:
           name: maven-dataset
           path: maven-dataset.json
+
+      - name: Sync dataset to Google Doc
+        run: node scripts/sync-docs-to-gdoc.js
+        env:
+          GOOGLE_DOC_WEBAPP_URL: ${{ secrets.GOOGLE_DOC_WEBAPP_URL }}
+          GOOGLE_DOC_SYNC_SECRET: ${{ secrets.GOOGLE_DOC_SYNC_SECRET }}
